@@ -1,10 +1,5 @@
 -module(main).
--export([start/1, start/2]).
-
-
-start(TestFileName) ->
-    TestDB = readlines(TestFileName),
-    TestDB.
+-export([start/2]).
 
 
 start(TrainFileName, TestFileName) ->
@@ -23,7 +18,7 @@ readlines(FileName) ->
 
 get_line(Device, List) ->
   case file:read_line(Device) of
-    {ok, Data} -> get_line(Device, lists:append([Data], List));
+    {ok, Data} -> get_line(Device, [Data | List]);
     eof -> List;
     {error, Reason} -> io:format("Error: ~p~n", [Reason])
   end.
@@ -31,8 +26,8 @@ get_line(Device, List) ->
 
 line_to_flower(Line) ->
     {Params, [ClassString]} = lists:split(4, string:tokens(Line," ")),
-    {ok, MP} = re:compile("\\n"),
-    Class = re:replace(ClassString, MP, "", [global,{return,list}]),
+    {ok, Expr} = re:compile("\\n"),
+    Class = re:replace(ClassString, Expr, "", [global,{return,list}]),
     [SepalLengh, SepalWidth, PetalLengh, PetalWidth] = [ list_to_float(X)|| X <- Params],
     {SepalLengh, SepalWidth, PetalLengh, PetalWidth, Class}.
 
