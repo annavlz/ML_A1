@@ -18,8 +18,14 @@ const calculateDistance = R.pipe(
         R.sum
     )
 
+// Integer -> []
 const getPrediction = function (K, neighbours, key) {
-    const countedVotes = R.pipe( R.slice(0, K), R.pluck(key), R.countBy(R.identity), R.invert)(neighbours)
+    const countedVotes = R.pipe(
+        R.slice(0, K), 
+        R.pluck(key), 
+        R.countBy(R.identity), 
+        R.invert
+    )(neighbours)
     const sortedRatings = R.keys(countedVotes).sort()
     return countedVotes[R.last(sortedRatings)][0]
 }
