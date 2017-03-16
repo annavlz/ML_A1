@@ -4,8 +4,6 @@ Util = require("./util")
 var trainFileName, testFileName, K
 [trainFileName, testFileName, K] = process.argv.slice(2)
 
-keys = ["sepalLength", "sepalWidth", "petalLength", "petalWidth", "class"]
-
 const createFlower = function (line) {
     let label = R.last(line)
     let params = R.map((p) => parseInt(p))(R.dropLast(1, line))

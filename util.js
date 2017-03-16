@@ -18,7 +18,7 @@ const calculateDistance = R.pipe(
         R.sum
     )
 
-// Integer -> []
+// Integer -> [Object] -> String -> String
 const getPrediction = function (K, neighbours, key) {
     const countedVotes = R.pipe(
         R.slice(0, K), 
