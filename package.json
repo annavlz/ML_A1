@@ -1,0 +1,22 @@
+{
+  "name": "ml",
+  "version": "1.0.0",
+  "description": "Machine learning assignment 1",
+  "main": "KNN.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/annavlz/ML_A1.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/annavlz/ML_A1/issues"
+  },
+  "homepage": "https://github.com/annavlz/ML_A1#readme",
+  "dependencies": {
+    "ramda": "^0.23.0"
+  }
+}

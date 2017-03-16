@@ -29,5 +29,7 @@ line_to_flower(Line) ->
     {ok, Expr} = re:compile("\\n"),
     Class = re:replace(ClassString, Expr, "", [global,{return,list}]),
     [SepalLengh, SepalWidth, PetalLengh, PetalWidth] = [ list_to_float(X)|| X <- Params],
-    {SepalLengh, SepalWidth, PetalLengh, PetalWidth, Class}.
+    ClassParam = round((SepalLengh * SepalWidth) + (PetalLengh * PetalWidth)),
+    io:format("~p ~p~n", [ClassParam, Class]),
+    {ClassParam, Class}.
 

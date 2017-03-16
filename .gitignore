@@ -10,3 +10,4 @@ rel/example_project
 .rebar
 ass1-data 2
 .DS_Store
+node_modules
