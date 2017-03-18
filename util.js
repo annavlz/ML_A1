@@ -10,13 +10,15 @@ const parseFile = R.pipe(
     ))
 )
 
-// Curried function [Number] -> [Number] -> Float
+
+// Curried function [Float] -> [Float] -> Float
 // Input lists has to be of equal length
 const calculateDistance = R.pipe(
         R.zip, 
         R.map (([x,y]) => Math.pow(x - y, 2)),
         R.sum
     )
+
 
 // Integer -> [Object] -> String -> String
 const getPrediction = function (K, neighbours, key) {

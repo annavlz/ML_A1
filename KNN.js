@@ -6,8 +6,8 @@ var trainFileName, testFileName, K
 
 const createFlower = function (line) {
     let label = R.last(line)
-    let params = R.map((p) => parseInt(p))(R.dropLast(1, line))
-    return {class: label, params: params}
+    let params = R.map((p) => parseFloat(p))(R.dropLast(1, line))
+    return {label: label, params: params}
 }
 
 const trainFileRaw = Util.parseFile(fs.readFileSync(trainFileName).toString())
@@ -17,18 +17,19 @@ const trainFile = R.map(createFlower)(trainFileRaw)
 const testFile = R.map(createFlower)(testFileRaw)
 const calculateFlowerDistance = function (testFlower, trainFlower) {
     let distance = Util.calculateDistance(testFlower.params, trainFlower.params)
-    return { distance: distance, class: trainFlower.class }
+    return { distance: distance, label: trainFlower.label }
 }
 
 const curriedCalculateDistance = R.curry(calculateFlowerDistance)
 
 const sortByDistance = R.sortWith([R.ascend(R.prop("distance"))])
 
-const predictClass = function (testFlower) {
+const predictLabel = function (testFlower) {
     let findNeighbours = curriedCalculateDistance(testFlower)
     let sortedNeighbours = sortByDistance(R.map(findNeighbours, trainFile))
-    let predictedClass = Util.getPrediction(K, sortedNeighbours, "class")
-    return {label: testFlower.class, prediction: predictedClass}
+    // console.log(testFlower, sortedNeighbours)
+    let predictedClass = Util.getPrediction(K, sortedNeighbours, "label")
+    return {label: testFlower.label, prediction: predictedClass}
 }
 
 const compareWithLabel = function (item) {
@@ -41,7 +42,7 @@ const evaluate = function (results) {
 }
 
 const run = R.pipe(
-    R.map(predictClass)
+    R.map(predictLabel)
   , R.map(compareWithLabel)
   , evaluate
 )
