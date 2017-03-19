@@ -21,20 +21,30 @@ const calculateDistance = R.pipe(
     )
 
 
-// Integer -> [Object] -> String -> String
-const getPrediction = function (K, neighbours, key) {
-    const countedVotes = R.pipe(
-        R.slice(0, K), 
+// Curries function String -> [Object] -> String
+const getVotes = function (key) {
+    return R.pipe(
         R.pluck(key), 
         R.countBy(R.identity), 
         R.invert
-    )(neighbours)
-    const sortedRatings = R.keys(countedVotes).sort()
-    return countedVotes[R.last(sortedRatings)][0]
+    )  
+}
+
+// {label, prediction} -> Integer
+const compareWithLabel = function (item) {
+    console.log(item)
+    return item.label == item.prediction ? 1 : 0
+}
+
+// [Integer] -> Float
+const evaluate = function (results) {
+    return R.sum(results) / R.length(results)
 }
 
 module.exports = {
     parseFile: parseFile,
     calculateDistance: calculateDistance,
-    getPrediction: getPrediction
+    getVotes: getVotes,
+    compareWithLabel: compareWithLabel,
+    evaluate: evaluate
 }

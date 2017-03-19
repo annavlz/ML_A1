@@ -24,27 +24,23 @@ const curriedCalculateDistance = R.curry(calculateFlowerDistance)
 
 const sortByDistance = R.sortWith([R.ascend(R.prop("distance"))])
 
+const getLabelPrediction = function(neighbours) {
+    let votes = Util.getVotes("label")(R.slice(0, K, neighbours))
+    let sortedVotes = R.keys(votes).sort()
+    return votes[R.last(sortedVotes)][0]
+}
+
 const predictLabel = function (testFlower) {
     let findNeighbours = curriedCalculateDistance(testFlower)
     let sortedNeighbours = sortByDistance(R.map(findNeighbours, trainFile))
-    // console.log(testFlower, sortedNeighbours)
-    let predictedClass = Util.getPrediction(K, sortedNeighbours, "label")
+    let predictedClass = getLabelPrediction(sortedNeighbours)
     return {label: testFlower.label, prediction: predictedClass}
-}
-
-const compareWithLabel = function (item) {
-    console.log(item)
-    return item.label == item.prediction ? 1 : 0
-}
-
-const evaluate = function (results) {
-    return R.sum(results) / R.length(results)
 }
 
 const run = R.pipe(
     R.map(predictLabel)
-  , R.map(compareWithLabel)
-  , evaluate
+  , R.map(Util.compareWithLabel)
+  , Util.evaluate
 )
 
 console.log(run(testFile))
