@@ -26,8 +26,10 @@ const trainTree = function (tree, tCase) {
 }
 
 const getPrediction = function (labels) {
-    
-
+    let votes = Util.getVotes("label")(labels)
+    let sortedVotes = R.keys(votes).sort()
+    console.log(sortedVotes)
+    return votes[R.last(sortedVotes)][0]
 }
 
 const predictedLabel = function (tree, pCase) {
