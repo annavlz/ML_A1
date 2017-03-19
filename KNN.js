@@ -4,14 +4,14 @@ Util = require("./util")
 var trainFileName, testFileName, K
 [trainFileName, testFileName, K] = process.argv.slice(2)
 
+const trainFileRaw = Util.parseFile(fs.readFileSync(trainFileName).toString(), " ")
+const testFileRaw = Util.parseFile(fs.readFileSync(testFileName).toString(), " ")
+
 const createFlower = function (line) {
     let label = R.last(line)
     let params = R.map((p) => parseFloat(p))(R.dropLast(1, line))
     return {label: label, params: params}
 }
-
-const trainFileRaw = Util.parseFile(fs.readFileSync(trainFileName).toString())
-const testFileRaw = Util.parseFile(fs.readFileSync(testFileName).toString())
 
 const trainFile = R.map(createFlower)(trainFileRaw)
 const testFile = R.map(createFlower)(testFileRaw)

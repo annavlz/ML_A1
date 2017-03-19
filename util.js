@@ -1,15 +1,16 @@
 fs = require("fs")
 R = require("ramda")
 
-// Curried function String -> [[ String ]]
-const parseFile = R.pipe(
-    R.split("\n") ,
-        R.map( R.pipe(
-        R.split(" "),
-        R.reject(R.isEmpty)
-    ))
-)
-
+// String -> String -> [[ String ]]
+const parseFile = function (rawString, token) {
+    return R.pipe(
+        R.split("\n") ,
+            R.map( R.pipe(
+            R.split(token),
+            R.reject(R.isEmpty)
+        ))
+    )(rawString)
+}
 
 // Curried function [Float] -> [Float] -> Float
 // Input lists has to be of equal length
