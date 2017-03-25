@@ -12,13 +12,31 @@ const parseFile = function (rawString, token) {
     )(rawString)
 }
 
+// Curried function [Float] -> [Float] -> [Float] -> Float
+// Input lists has to be of equal length
+// Euclidian distance with ranges adjustment
+
+const calculateDistance = function (xs, ys, rs) {
+    return R.pipe(
+        R.zip,
+        R.zip (rs),
+        R.map (R.flatten),  
+        R.map (([r,x,y]) => Math.sqrt(Math.pow(x - y, 2) / Math.pow(r, 2))),
+        R.sum
+    )(xs, ys)
+}
+
 // Curried function [Float] -> [Float] -> Float
 // Input lists has to be of equal length
-const calculateDistance = R.pipe(
-        R.zip, 
-        R.map (([x,y]) => Math.pow(x - y, 2)),
-        R.sum
-    )
+// Simple Euclidian distance
+
+// const calculateDistance = function (xs, ys, rs) {
+//     return R.pipe(
+//         R.zip,
+//         R.map (([x,y]) => Math.sqrt(Math.pow(x - y, 2))),
+//         R.sum
+//     )(xs, ys)
+// }
 
 
 // Curries function String -> [Object] -> String

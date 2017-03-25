@@ -13,10 +13,20 @@ const createFlower = function (line) {
     return {label: label, params: params}
 }
 
+const groupParams = (function (sets, flower) {
+    return R.map(R.flatten, (R.zip(sets, flower.params)))
+})
+
 const trainFile = R.map(createFlower)(trainFileRaw)
 const testFile = R.map(createFlower)(testFileRaw)
+const ranges = R.map(function (set) {
+    let sortedSet = set.sort()
+    return R.last(sortedSet) - R.head(sortedSet)
+})(R.reduce(groupParams, [[],[],[],[]], trainFile))
+
 const calculateFlowerDistance = function (testFlower, trainFlower) {
-    let distance = Util.calculateDistance(testFlower.params, trainFlower.params)
+    let distance = Util.calculateDistance(testFlower.params, trainFlower.params, ranges)
+    // console.log( distance)
     return { distance: distance, label: trainFlower.label }
 }
 
