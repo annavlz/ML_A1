@@ -1,0 +1,90 @@
+
+varices
+  false:
+    bigliver
+      false:
+        live, 100%
+      true:
+        histology
+          false:
+            live, 100%
+          true:
+            fatigue
+              false:
+                die, 100%
+              true:
+                firmliver
+                  false:
+                    live, 100%
+                  true:
+                    die, 100%
+  true:
+    ascites
+      false:
+        steroid
+          false:
+            anorexia
+              false:
+                live, 100%
+              true:
+                die, 100%
+          true:
+            die, 100%
+      true:
+        spiders
+          false:
+            firmliver
+              false:
+                sgot
+                  false:
+                    live, 100%
+                  true:
+                    bigliver
+                      false:
+                        die, 100%
+                      true:
+                        live, 100%
+              true:
+                anorexia
+                  false:
+                    live, 100%
+                  true:
+                    sgot
+                      false:
+                        die, 100%
+                      true:
+                        live, 100%
+          true:
+            steroid
+              false:
+                histology
+                  false:
+                    antivirals
+                      false:
+                        fatigue
+                          false:
+                            firmliver
+                              false:
+                                die, 100%
+                              true:
+                                live, 100%
+                          true:
+                            live, 100%
+                      true:
+                        live, 100%
+                  true:
+                    spleenpalpable
+                      false:
+                        die, 100%
+                      true:
+                        fatigue
+                          false:
+                            live, 100%
+                          true:
+                            firmliver
+                              false:
+                                die, 100%
+                              true:
+                                live, 100%
+              true:
+                live, 100%

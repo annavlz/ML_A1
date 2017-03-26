@@ -8,19 +8,18 @@ var trainFileName, testFileName
 const trainFileRaw = Util.parseFile(fs.readFileSync(trainFileName).toString(), "\t")
 const testFileRaw = Util.parseFile(fs.readFileSync(testFileName).toString(), "\t")
 
-const keys = R.map(R.toLower)(trainFileRaw[1])
 
 const createCase = function (line) {
     let params = R.fromPairs(R.zip(keys, R.tail(line)))
     return R.merge(params, {label: R.head(line)})
 }
 
-const trainFile = R.map(createCase, R.drop(2,trainFileRaw))
-const testFile = R.map(createCase, R.drop(2,testFileRaw))
 
 const getClassCount = function (key, data) {
      return R.countBy(R.identity, R.pluck(key, data))
 }
+
+
 const getMajorClass = function (data) {
     return R.pipe(
         R.mapObjIndexed(function (v, i, obj) {
@@ -33,7 +32,6 @@ const getMajorClass = function (data) {
     )(getClassCount("label", data))
 }
 
-const BASELINE = getMajorClass(trainFile)
 
 const getClassesRatio = function (set, size) {
     let classesCount = R.values(getClassCount("label", set))
@@ -42,6 +40,8 @@ const getClassesRatio = function (set, size) {
     else 
         return 0
 }
+
+
 const getP = function (key, set) {
     let trueSet = R.filter(R.propEq(key, "true"), set)
     let falseSet = R.filter(R.propEq(key, "false"), set)
@@ -54,21 +54,27 @@ const getP = function (key, set) {
         + (falseSetSize/atrSize) * falseSetClassesRatio       
 }
 
+
 const attrPs = function (keys, set) {
-    return R.reduce(function (arr, key) {
+    let p = R.reduce(function (arr, key) {
         let keyP = {label: key, p: getP(key, set)}
         return R.append(keyP, arr)
     }, [], keys)
+    // console.log(p)
+    return p
 }
 
-getBestAttr = function (attrPs) {
+
+const getBestAttr = function (attrPs) {
     return R.head(R.sortWith([R.ascend(R.prop("p"))], attrPs)).label
 }
+
 
 const isPure = function (data) {
     // console.log("PURE", R.length(R.values(getClassCount("label", data)))== 1)
     return R.length(R.values(getClassCount("label", data))) == 1
 }
+
 
 const buildTree = function (data, attrs) {
     // console.log (data, attrs)
@@ -86,6 +92,7 @@ const buildTree = function (data, attrs) {
     } else {
         // console.log("ELSE")
         let bestAttr = getBestAttr(attrPs(attrs, data))
+        // console.log(bestAttr)
         let newAttrs = R.reject(R.equals(bestAttr), attrs)
         return { [bestAttr]: { 
             "true": buildTree(R.filter(R.propEq(bestAttr, "true"), data), newAttrs),
@@ -94,11 +101,11 @@ const buildTree = function (data, attrs) {
     }
 }
 
-const tree = buildTree( trainFile, keys)
 
 const printTabs = function (n) {
     return "\n" + R.join("", R.repeat("  ", n))
 }  
+
 
 const print = function (nT, tree) {
   if(R.has("label", tree)){
@@ -111,4 +118,48 @@ const print = function (nT, tree) {
   }
 }
 
-console.log(print(0, tree))
+
+const getNode = function (tree, line) {
+    // console.log(line, tree)
+    if(R.has("label", tree)){
+        // console.log("return", tree)
+        return tree
+    } else {
+        let attr = R.keys(tree)[0]
+        return getNode(tree[attr][line[attr]], line)
+    }
+}
+
+
+const evaluate = function (tree, set) {
+    let evals = R.map(function (line) {
+        let node = getNode(tree, line)
+        return node.label == line.label ? 1 : 0
+    })(set)
+    return R.sum(evals)/R.length(evals)
+}
+
+
+const evaluateBaseline = function (baseline, set) {
+    let evals = R.map(function (line) {
+        return baseline.label == line.label ? 1 : 0
+    })(set)
+    return R.sum(evals)/R.length(evals)
+}
+
+
+const keys = R.map(R.toLower)(trainFileRaw[1])
+const trainFile = R.map(createCase, R.drop(2,trainFileRaw))
+const testFile = R.map(createCase, R.drop(2,testFileRaw))
+const BASELINE = getMajorClass(trainFile)
+const tree = buildTree( trainFile, keys)
+
+// console.log(evaluateBaseline(BASELINE, testFile))
+// console.log(print(0, tree))
+// fs.writeFile("print", print(0, tree), function(err) {
+//     if(err) {
+//         return console.log(err);
+//     }
+//     console.log("The file was saved!");
+// }); 
+console.log(evaluate(tree, testFile))
