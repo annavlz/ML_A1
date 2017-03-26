@@ -78,7 +78,7 @@ const buildTree = function (data, attrs) {
     } 
     else if (isPure(data)) {
         // console.log("PURE")
-        return {label: data[0].label, probability: 1}
+        return {label: data[0].label, probability: "100%"}
     }
     else if (R.isEmpty(attrs)) { 
         // console.log("attr EMPTY")  
@@ -96,4 +96,19 @@ const buildTree = function (data, attrs) {
 
 const tree = buildTree( trainFile, keys)
 
-console.log(R.toString(tree))
+const printTabs = function (n) {
+    return "\n" + R.join("", R.repeat("  ", n))
+}  
+
+const print = function (nT, tree) {
+  if(R.has("label", tree)){
+      return printTabs(nT) + tree.label + ", " + tree.probability
+  } else {
+    let attr = R.keys(tree)[0]    
+    return printTabs(nT) + attr 
+      + printTabs(nT + 1) + "false:" + print(nT + 2, tree[attr].false)
+      + printTabs(nT + 1) + "true:" + print(nT + 2, tree[attr].true)
+  }
+}
+
+console.log(print(0, tree))
