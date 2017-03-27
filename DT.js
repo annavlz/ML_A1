@@ -32,6 +32,9 @@ const getMajorClass = function (data) {
     )(getClassCount("label", data))
 }
 
+const enthropy = function (x,y){
+    return ((x/y) * Math.log2(x/y)) * -1 
+}
 
 const getClassesRatio = function (set, size) {
     let classesCount = R.values(getClassCount("label", set))
@@ -41,18 +44,39 @@ const getClassesRatio = function (set, size) {
         return 0
 }
 
+const getClassesEnthropy = function (set, size) {
+    let classesCount = R.values(getClassCount("label", set))
+    if(R.length(classesCount) > 1)
+        return enthropy(classesCount[0]/size) + enthropy(classesCount[1]/size) 
+    else 
+        return 0
+}
+
 
 const getP = function (key, set) {
     let trueSet = R.filter(R.propEq(key, "true"), set)
     let falseSet = R.filter(R.propEq(key, "false"), set)
-    let atrSize = R.length(set)
+    let setSize = R.length(set)
     let trueSetSize = R.length(trueSet)
     let falseSetSize = R.length(falseSet)
     let trueSetClassesRatio = getClassesRatio(trueSet, trueSetSize)
     let falseSetClassesRatio = getClassesRatio(falseSet, falseSetSize)
-    return (trueSetSize/atrSize) * trueSetClassesRatio
-        + (falseSetSize/atrSize) * falseSetClassesRatio       
+    return (trueSetSize/setSize) * trueSetClassesRatio
+        + (falseSetSize/setSize) * falseSetClassesRatio
 }
+
+// with information gain approach
+// const getP = function (key, set) {
+//     let trueSet = R.filter(R.propEq(key, "true"), set)
+//     let falseSet = R.filter(R.propEq(key, "false"), set)
+//     let setSize = R.length(set)
+//     let trueSetSize = R.length(trueSet)
+//     let falseSetSize = R.length(falseSet)
+//     let setEnthropy = getClassesEnthropy(set, setSize)
+//     let trueSetEnthropy = getClassesEnthropy(trueSet, trueSetSize)
+//     let falseSetEnthropy = getClassesEnthropy(falseSet, falseSetSize)
+//     return setEnthropy - ((trueSetSize/setSize) * trueSetEnthropy) - ((falseSetSize/setSize) * falseSetEnthropy)
+// }
 
 
 const attrPs = function (keys, set) {
@@ -66,6 +90,7 @@ const attrPs = function (keys, set) {
 
 
 const getBestAttr = function (attrPs) {
+    // console.log(R.sortWith([R.ascend(R.prop("p"))], attrPs))
     return R.head(R.sortWith([R.ascend(R.prop("p"))], attrPs)).label
 }
 
@@ -140,12 +165,12 @@ const evaluate = function (tree, set) {
 }
 
 
-const evaluateBaseline = function (baseline, set) {
-    let evals = R.map(function (line) {
-        return baseline.label == line.label ? 1 : 0
-    })(set)
-    return R.sum(evals)/R.length(evals)
-}
+// const evaluateBaseline = function (baseline, set) {
+//     let evals = R.map(function (line) {
+//         return baseline.label == line.label ? 1 : 0
+//     })(set)
+//     return R.sum(evals)/R.length(evals)
+// }
 
 
 const keys = R.map(R.toLower)(trainFileRaw[1])
@@ -154,7 +179,7 @@ const testFile = R.map(createCase, R.drop(2,testFileRaw))
 const BASELINE = getMajorClass(trainFile)
 const tree = buildTree( trainFile, keys)
 
-// console.log(evaluateBaseline(BASELINE, testFile))
+console.log(BASELINE)
 // console.log(print(0, tree))
 // fs.writeFile("print", print(0, tree), function(err) {
 //     if(err) {
@@ -162,4 +187,4 @@ const tree = buildTree( trainFile, keys)
 //     }
 //     console.log("The file was saved!");
 // }); 
-console.log(evaluate(tree, testFile))
+// console.log(evaluate(tree, testFile))
