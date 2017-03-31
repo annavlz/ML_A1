@@ -12,6 +12,14 @@ const parseFile = function (rawString, token) {
     )(rawString)
 }
 
+const parseFileLines = function (rawString) {
+    return R.pipe(
+        R.split("\n"),
+        R.map(R.reject(R.isEmpty))
+    )(rawString)
+}
+
+
 // Curried function [Float] -> [Float] -> [Float] -> Float
 // Input lists has to be of equal length
 // Euclidian distance with ranges adjustment
@@ -61,6 +69,7 @@ const evaluate = function (results) {
 
 module.exports = {
     parseFile: parseFile,
+    parseFileLines: parseFileLines,
     calculateDistance: calculateDistance,
     getVotes: getVotes,
     compareWithLabel: compareWithLabel,
