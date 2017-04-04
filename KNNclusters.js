@@ -4,17 +4,11 @@ Util = require("./util")
 var trainFileName, testFileName, K
 [trainFileName, testFileName, K] = process.argv.slice(2)
 
-const trainFileRaw = Util.parseFile(fs.readFileSync(trainFileName).toString(), " ")
-const testFileRaw = Util.parseFile(fs.readFileSync(testFileName).toString(), " ")
-
 const createFlower = function (line) {
     let label = R.last(line)
     let params = R.map((p) => parseFloat(p))(R.dropLast(1, line))
     return {label: label, params: params}
 }
-
-const trainFile = R.map(createFlower)(trainFileRaw)
-const testFile = R.map(createFlower)(testFileRaw)
 
 const calculateDistance = function (xs, ys) {
     return R.pipe(
@@ -25,7 +19,6 @@ const calculateDistance = function (xs, ys) {
 }
 
 const sortIntoClusters = function (centres, flower) {
-    // console.log(centres)
     let sortedClusters =R.sortBy(R.prop("distance"))([
         {cluster: 0, distance: calculateDistance(R.head(centres[0]).params, flower.params)},
         {cluster: 1, distance: calculateDistance(R.head(centres[1]).params, flower.params)}, 
@@ -34,9 +27,9 @@ const sortIntoClusters = function (centres, flower) {
     return [centres[sortedClusters[1].cluster], centres[sortedClusters[2].cluster], R.append(R.merge(flower, {distance: sortedClusters[0].distance}), centres[sortedClusters[0].cluster])]
 }
 
-const start = [[R.merge(trainFile[0], {distance:0})], [R.merge(trainFile[1], {distance:0})], [R.merge(trainFile[2], {distance:0})]]
-const data = R.drop(3,trainFile)
-
+const getClass = function (cluster) {
+    return R.invert(Util.getVotes("label")(cluster))
+}
 const createClusters = function (centres, data, sizes = [0,0,0]) {
     let groupedClusters = R.reduce(sortIntoClusters, centres, data)
     let newCentres = R.map(function(cluster){
@@ -48,10 +41,16 @@ const createClusters = function (centres, data, sizes = [0,0,0]) {
     if(R.equals(centres, newCentres) && R.equals(sizes, newSizes)){
         return createClusters (newCentres, data, newSizes)
     } else {
-        let classes = R.map((cluster) => getClass(cluster))(groupedClusters)
-        // return []newCentres
+        return R.map((cluster) => getClass(cluster))(groupedClusters)
     }
 }
 
+const trainFileRaw = Util.parseFile(fs.readFileSync(trainFileName).toString(), " ")
+const testFileRaw = Util.parseFile(fs.readFileSync(testFileName).toString(), " ")
+const trainFile = R.map(createFlower)(trainFileRaw)
+const testFile = R.map(createFlower)(testFileRaw)
+const start = [[R.merge(trainFile[0], {distance:0})], [R.merge(trainFile[1], {distance:0})], [R.merge(trainFile[2], {distance:0})]]
+const data = R.drop(3,trainFile)
+
 const a = createClusters(start, data)
-console.log(a)
+console.log("Cluster 1\n", a[0], "\nCluster 2\n", a[1], "\nCluster 3\n", a[2])

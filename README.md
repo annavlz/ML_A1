@@ -10,6 +10,10 @@ K nearest neighbours
 run with `node KNN.js <training file path> <test file path> <k nujmber>`
 example `node KNN.js ./part1/iris-training.txt ./part1/iris-test.txt 1`
 
+K clusters
+run with `node KNN.js <training file path> <test file path>`
+example `node KNNclusters.js ./part1/iris-training.txt ./part1/iris-test.txt`
+
 -- part 2 --
 Decision tree
 run with `node DT.js <training file path> <test file path>`
