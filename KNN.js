@@ -26,7 +26,6 @@ const ranges = R.map(function (set) {
 
 const calculateFlowerDistance = function (testFlower, trainFlower) {
     let distance = Util.calculateDistance(testFlower.params, trainFlower.params, ranges)
-    // console.log( distance)
     return { distance: distance, label: trainFlower.label }
 }
 
