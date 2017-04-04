@@ -38,13 +38,7 @@ const calculateDistance = function (xs, ys, rs) {
 // Input lists has to be of equal length
 // Simple Euclidian distance
 
-// const calculateDistance = function (xs, ys, rs) {
-//     return R.pipe(
-//         R.zip,
-//         R.map (([x,y]) => Math.sqrt(Math.pow(x - y, 2))),
-//         R.sum
-//     )(xs, ys)
-// }
+
 
 
 // Curries function String -> [Object] -> String

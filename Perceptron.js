@@ -38,37 +38,22 @@ const data = R.pipe(
 
 const valuedFeatures = R.map(valueImage, data)
 
-const testData = R.pipe(
-    R.split("\n"),
-    R.splitEvery(4),
-    R.map((l) => R.evolve(transformations, R.fromPairs(R.zip(keys, l))))  
-    
-)(fs.readFileSync(testFileName).toString())
-
-const valuedFeaturesTest = R.map(valueImage, testData)
-
 var weights = R.repeat(0, 51)
 
 const predict = function (image, eval) {
     let positive = R.sum(R.zipWith(R.multiply, weights, image.features)) > 0
-    if (image.label == "Yes") {
-        if(!positive){
-            if (!eval)
-                weights = R.zipWith(R.add, weights, image.features)
-            return 0
-        }else{
-            return 1
-        }
-    } else {
-        if(positive){
-            if (!eval)
-                weights = R.zipWith(R.subtract, weights, image.features)
-            return 0
-        }else{
-            return 1
-        }
+    if (image.label == "Yes" && !positive) {
+        if (!eval)
+            weights = R.zipWith(R.add, weights, image.features)
+        return 0
+    } 
+    else if (image.label != "Yes" && positive) {
+        if (!eval)
+            weights = R.zipWith(R.subtract, weights, image.features)
+        return 0
+    } else{
+        return 1
     }
-
 }   
 
 const predictionsRound = function (data, eval = false) {
@@ -79,7 +64,7 @@ const predictionsRound = function (data, eval = false) {
 
 const updateRates = function (newRate, rates) {
     let newRates = R.append(newRate, rates)
-    if (R.length(rates) > 1000) {
+    if (R.length(rates) > 100) {
         return R.drop(1, newRates)
     }else {
         return newRates
@@ -89,7 +74,7 @@ const updateRates = function (newRate, rates) {
 const runPredictions = function (rates, n) {
     let predictions = predictionsRound(valuedFeatures)
     let newRate = R.sum(predictions)/R.length(valuedFeatures)
-    if (newRate == 1 || R.all(R.equals(newRate))(rates)) {
+    if (newRate == 1 || R.all(R.equals(newRate))(rates) || n == 5000) {
         console.log("Finished training with", n, "iterations")
     } else {
         runPredictions(updateRates(newRate, rates), n + 1)
@@ -104,4 +89,12 @@ const evaluate = function(data){
 
 runPredictions([100], 0)
 evaluate(valuedFeatures)
-evaluate(valuedFeaturesTest)
+if(testFileName){
+    const testData = R.pipe(
+        R.split("\n"),
+        R.splitEvery(4),
+        R.map((l) => R.evolve(transformations, R.fromPairs(R.zip(keys, l))))         
+    )(fs.readFileSync(testFileName).toString())
+    const valuedFeaturesTest = R.map(valueImage, testData)
+    evaluate(valuedFeaturesTest)
+}
