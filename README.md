@@ -20,4 +20,6 @@ Perseptron
 run with `node Perceptron.js <path>`
 example `node Perceptron.js ./part3/image.data`
 
+or with a test file `node Perceptron.js ./part3/image.data ./part3/image_test.data`
+
 

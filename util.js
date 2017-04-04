@@ -1,15 +1,17 @@
 fs = require("fs")
 R = require("ramda")
 
+
 // String -> String -> [[ String ]]
 const parseFile = function (rawString, token) {
-    return R.pipe(
-        R.split("\n") ,
-            R.map( R.pipe(
+    let lines = R.pipe(
+        R.split("\n"),
+        R.map( R.pipe(
             R.split(token),
             R.reject(R.isEmpty)
         ))
     )(rawString)
+    return R.reject(R.isEmpty, lines)
 }
 
 const parseFileLines = function (rawString) {
@@ -23,7 +25,6 @@ const parseFileLines = function (rawString) {
 // Curried function [Float] -> [Float] -> [Float] -> Float
 // Input lists has to be of equal length
 // Euclidian distance with ranges adjustment
-
 const calculateDistance = function (xs, ys, rs) {
     return R.pipe(
         R.zip,
@@ -33,13 +34,6 @@ const calculateDistance = function (xs, ys, rs) {
         R.sum
     )(xs, ys)
 }
-
-// Curried function [Float] -> [Float] -> Float
-// Input lists has to be of equal length
-// Simple Euclidian distance
-
-
-
 
 // Curries function String -> [Object] -> String
 const getVotes = function (key) {

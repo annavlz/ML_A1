@@ -65,59 +65,37 @@ const getP = function (key, set) {
         + (falseSetSize/setSize) * falseSetClassesRatio
 }
 
-// with information gain approach
-// const getP = function (key, set) {
-//     let trueSet = R.filter(R.propEq(key, "true"), set)
-//     let falseSet = R.filter(R.propEq(key, "false"), set)
-//     let setSize = R.length(set)
-//     let trueSetSize = R.length(trueSet)
-//     let falseSetSize = R.length(falseSet)
-//     let setEnthropy = getClassesEnthropy(set, setSize)
-//     let trueSetEnthropy = getClassesEnthropy(trueSet, trueSetSize)
-//     let falseSetEnthropy = getClassesEnthropy(falseSet, falseSetSize)
-//     return setEnthropy - ((trueSetSize/setSize) * trueSetEnthropy) - ((falseSetSize/setSize) * falseSetEnthropy)
-// }
-
 
 const attrPs = function (keys, set) {
     let p = R.reduce(function (arr, key) {
         let keyP = {label: key, p: getP(key, set)}
         return R.append(keyP, arr)
     }, [], keys)
-    // console.log(p)
     return p
 }
 
 
 const getBestAttr = function (attrPs) {
-    // console.log(R.sortWith([R.ascend(R.prop("p"))], attrPs))
     return R.head(R.sortWith([R.ascend(R.prop("p"))], attrPs)).label
 }
 
 
 const isPure = function (data) {
-    // console.log("PURE", R.length(R.values(getClassCount("label", data)))== 1)
     return R.length(R.values(getClassCount("label", data))) == 1
 }
 
 
 const buildTree = function (data, attrs) {
-    // console.log (data, attrs)
     if (R.isEmpty(data)){
-        // console.log("data EMPTY")
         return BASELINE
     } 
     else if (isPure(data)) {
-        // console.log("PURE")
         return {label: data[0].label, probability: "100%"}
     }
     else if (R.isEmpty(attrs)) { 
-        // console.log("attr EMPTY")  
         return getMajorClass(data)
     } else {
-        // console.log("ELSE")
         let bestAttr = getBestAttr(attrPs(attrs, data))
-        // console.log(bestAttr)
         let newAttrs = R.reject(R.equals(bestAttr), attrs)
         return { [bestAttr]: { 
             "true": buildTree(R.filter(R.propEq(bestAttr, "true"), data), newAttrs),
@@ -145,9 +123,7 @@ const print = function (nT, tree) {
 
 
 const getNode = function (tree, line) {
-    // console.log(line, tree)
     if(R.has("label", tree)){
-        // console.log("return", tree)
         return tree
     } else {
         let attr = R.keys(tree)[0]
@@ -165,26 +141,20 @@ const evaluate = function (tree, set) {
 }
 
 
-// const evaluateBaseline = function (baseline, set) {
-//     let evals = R.map(function (line) {
-//         return baseline.label == line.label ? 1 : 0
-//     })(set)
-//     return R.sum(evals)/R.length(evals)
-// }
-
-
 const keys = R.map(R.toLower)(trainFileRaw[1])
 const trainFile = R.map(createCase, R.drop(2,trainFileRaw))
 const testFile = R.map(createCase, R.drop(2,testFileRaw))
 const BASELINE = getMajorClass(trainFile)
 const tree = buildTree( trainFile, keys)
 
-console.log(BASELINE)
-// console.log(print(0, tree))
+console.log("Baseline: ", BASELINE.label,", probability", BASELINE.probability)
+console.log(print(0, tree))
+
 // fs.writeFile("print", print(0, tree), function(err) {
 //     if(err) {
 //         return console.log(err);
 //     }
 //     console.log("The file was saved!");
 // }); 
-// console.log(evaluate(tree, testFile))
+
+console.log("Accuracy", Math.round(evaluate(tree, testFile)*100), "%")

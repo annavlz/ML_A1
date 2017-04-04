@@ -6,12 +6,13 @@ const randomFeatures = require("./random_features.json")
 var dataFileName, testFileName
 [dataFileName, testFileName] = process.argv.slice(2)
 
-const keys = ["name", "label", "size", "data"]
+const keys = ["name", "label", "size", "data1", "data2"]
 
 const transformations = {
     label: R.drop(1),
     size: R.pipe(R.split(" "), R.map((n) => parseInt(n))),
-    data: R.pipe(R.split(""), R.map((n) => parseInt(n)), R.splitEvery(10)),
+    data1: R.pipe(R.split(""), R.map((n) => parseInt(n))),
+    data2: R.pipe(R.split(""), R.map((n) => parseInt(n)))
 }
 
 const getValues = function (image, features) {
@@ -29,12 +30,16 @@ const valueImage = function (image) {
     return R.merge(image, {features: values})
 }
 
-const data = R.pipe(
+const transformData = R.pipe(
     R.split("\n"),
-    R.splitEvery(4),
-    R.map((l) => R.evolve(transformations, R.fromPairs(R.zip(keys, l))))  
-    
-)(fs.readFileSync(dataFileName).toString())
+    R.splitEvery(5),
+    R.map(function (l) {
+        let o = R.evolve(transformations, R.fromPairs(R.zip(keys, l)))
+        return R.omit (["data1", "data2"] , R.merge(o, {data: R.splitEvery(10, R.concat(o.data1, o.data2))}))
+    })     
+)
+
+const data = transformData(fs.readFileSync(dataFileName).toString())
 
 const valuedFeatures = R.map(valueImage, data)
 
@@ -90,11 +95,8 @@ const evaluate = function(data){
 runPredictions([100], 0)
 evaluate(valuedFeatures)
 if(testFileName){
-    const testData = R.pipe(
-        R.split("\n"),
-        R.splitEvery(4),
-        R.map((l) => R.evolve(transformations, R.fromPairs(R.zip(keys, l))))         
-    )(fs.readFileSync(testFileName).toString())
+    const testData = transformData(fs.readFileSync(testFileName).toString())
     const valuedFeaturesTest = R.map(valueImage, testData)
+    console.log("Running test data")
     evaluate(valuedFeaturesTest)
 }
